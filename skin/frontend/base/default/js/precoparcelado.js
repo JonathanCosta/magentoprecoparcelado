@@ -39,6 +39,12 @@ $pp(document).ready(function() {
             var ppGroupSymbol = optionsPrice.priceFormat.groupSymbol;
             var finalText = '';
             var tableText = '';
+            var discount = parseInt($pp('.precoparcelado-single-price').attr('data-discount'));
+
+            if(discount > 0) {
+                var singlePrice = ppCurrencyFormat + (value * ((100 - discount) / 100)).formatMoney(2, ppDecimalSymbol, ppGroupSymbol);
+                $pp('.precoparcelado-single-price').html(singlePrice);
+            }
 
             for (var i = 2; i <= maxNumberMonths; i++) {
                 var parcel = 0;

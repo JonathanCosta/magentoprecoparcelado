@@ -8,12 +8,23 @@ Com esta extensão é possível você mostrar o preço parcelado do seu produto.
 COMO EXIBIR O TEXTO DE PARCELA:
 
 ```php
-$modules = Mage::getConfig()->getNode('modules')->children();
-$modulesArray = (array)$modules;
-
-if (isset($modulesArray['FranciscoPrado_PrecoParcelado'])) {
-echo Mage::helper('franciscoprado_precoparcelado')->getPrice($this->getProduct()->getFinalPrice());
-}
+if (isset($modulesArray['FranciscoPrado_PrecoParcelado'])) { ?>
+	<div class="payment-form">
+	    <p class="m-0 d-block">
+	    	<strong>
+				<?php echo Mage::helper('franciscoprado_precoparcelado')->getSinglePrice($this->getProduct()->getFinalPrice()); ?>
+	    	</strong> 
+	    	à vista no boleto
+	    </p>
+	    <p class="m-0 d-block">
+	    	ou
+	    	<strong>
+				<?php echo Mage::helper('franciscoprado_precoparcelado')->getPrice($this->getProduct()->getFinalPrice()); ?>
+	    	</strong> 
+	    	sem juros!
+	    </p>
+	</div>	
+<?php } ?>
 ```
 
 Suponhamos que você queira exibir, abaixo do preço à vista do produto, a forma em parcelas do tipo "ou em 12x de R$ 10,00". Para isso basta você adicionar o seguinte código ao arquivo app/design/frontend/base/default/template/catalog/product/price.phtml:

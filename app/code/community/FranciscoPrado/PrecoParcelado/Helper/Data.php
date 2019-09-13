@@ -17,6 +17,7 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
     const XML_PATH_TEXT_WITHOUT_INTEREST = 'sales/franciscoprado_precoparcelado/text_without_interest';
     const XML_PATH_SHOW_SINGLE_PARCEL_TEXT = 'sales/franciscoprado_precoparcelado/show_single_parcel_text';
     const XML_PATH_TEXT_TABLE_SINGLE_PRICE = 'sales/franciscoprado_precoparcelado/text_table_single_price';
+    const XML_PATH_SINGLE_PRICE_DISCOUNT = 'sales/franciscoprado_precoparcelado/single_price_discount';
 
     public function isModuleEnabled($moduleName = null) {
         if ((int) Mage::getStoreConfig(self::XML_PATH_ACTIVE, Mage::app()->getStore()) != 1) {
@@ -81,6 +82,10 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
         return Mage::getStoreConfig(self::XML_PATH_TEXT_TABLE_SINGLE_PRICE, $store);
     }
 
+    public function getSinglePriceDiscount($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_SINGLE_PRICE_DISCOUNT, $store);
+    }
+
     public function getParcelsValue($value, $interest, $parcel) {
         $interest = bcdiv($interest, 100, 15);
         $final_interest = 0;
@@ -135,4 +140,14 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
         return null;
     }
 
+    public function getSinglePrice($value)
+    {
+        if ($this->isModuleEnabled() && $this->showPriceInParcels()) {
+            $value = Mage::helper('core')->currency(($value * ((100 - (int)$this->getSinglePriceDiscount())/100)), true, false);
+
+            return sprintf('<span class="precoparcelado-single-price" data-discount="%s">%s</span>', (int)$this->getSinglePriceDiscount(), $value);
+        }
+
+        return null;
+    }
 }

@@ -151,7 +151,19 @@
                                 O texto para parcela única (à vista) caso exibido.
                             </comment>
                         </text_table_single_price>
-			<add_jquery>
+                        <single_price_discount>
+                            <label>Desconto para pagamentos à vista</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>102</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <validate>validate-greater-than-zero</validate>
+                            <comment>
+                                Para 5% de desconto, coloque 5 no campo.
+                            </comment>
+                        </single_price_discount>
+                        <add_jquery>
                             <label>Add jQuery?</label>
                             <sort_order>110</sort_order>
                             <frontend_type>select</frontend_type>
