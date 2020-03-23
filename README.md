@@ -8,6 +8,11 @@ Com esta extensão é possível você mostrar o preço parcelado do seu produto.
 COMO EXIBIR O TEXTO DE PARCELA:
 
 ```php
+<?php
+
+$modules = Mage::getConfig()->getNode('modules')->children();
+$modulesArray = (array)$modules;
+
 if (isset($modulesArray['FranciscoPrado_PrecoParcelado'])) { ?>
 	<div class="payment-form">
 	    <p class="m-0 d-block">
