@@ -12,6 +12,12 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
     const XML_PATH_TEXT_PATTERN = 'sales/franciscoprado_precoparcelado/text_pattern';
     const XML_PATH_TABLE_TEXT_PATTERN = 'sales/franciscoprado_precoparcelado/text_table_pattern';
     const XML_PATH_ADD_JQUERY = 'sales/franciscoprado_precoparcelado/add_jquery';
+    const XML_PATH_INTEREST_FROM = 'sales/franciscoprado_precoparcelado/interest_from';
+    const XML_PATH_TEXT_WITH_INTEREST = 'sales/franciscoprado_precoparcelado/text_with_interest';
+    const XML_PATH_TEXT_WITHOUT_INTEREST = 'sales/franciscoprado_precoparcelado/text_without_interest';
+    const XML_PATH_SHOW_SINGLE_PARCEL_TEXT = 'sales/franciscoprado_precoparcelado/show_single_parcel_text';
+    const XML_PATH_TEXT_TABLE_SINGLE_PRICE = 'sales/franciscoprado_precoparcelado/text_table_single_price';
+    const XML_PATH_SINGLE_PRICE_DISCOUNT = 'sales/franciscoprado_precoparcelado/single_price_discount';
 
     public function isModuleEnabled($moduleName = null) {
         if ((int) Mage::getStoreConfig(self::XML_PATH_ACTIVE, Mage::app()->getStore()) != 1) {
@@ -56,16 +62,47 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
         return Mage::getStoreConfig(self::XML_PATH_ADD_JQUERY, $store);
     }
 
+    public function getInterestFrom($store = null) {
+        return (float) Mage::getStoreConfig(self::XML_PATH_INTEREST_FROM, $store);
+    }
+
+    public function getTextWithInterest($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_TEXT_WITH_INTEREST, $store);
+    }
+
+    public function getTextWithoutInterest($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_TEXT_WITHOUT_INTEREST, $store);
+    }
+
+    public function showSingleParcelText($store = null) {
+        return (float) Mage::getStoreConfig(self::XML_PATH_SHOW_SINGLE_PARCEL_TEXT, $store);
+    }
+
+    public function getTextSinglePrice($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_TEXT_TABLE_SINGLE_PRICE, $store);
+    }
+
+    public function getSinglePriceDiscount($store = null) {
+        return Mage::getStoreConfig(self::XML_PATH_SINGLE_PRICE_DISCOUNT, $store);
+    }
+
     public function getParcelsValue($value, $interest, $parcel) {
         $interest = bcdiv($interest, 100, 15);
+        $final_interest = 0;
         $E = 1.0;
         $cont = 1.0;
 
         for ($i = 1; $i <= $parcel; $i++) {
-            $cont = bcmul($cont, bcadd($interest, 1, 15), 15);
+            if ($i >= $this->getInterestFrom()) {
+                $final_interest = $interest;
+            } else {
+                $final_interest = 0;
+            }
+
+            $cont = bcmul($cont, bcadd($final_interest, 1, 15), 15);
             $E = bcadd($E, $cont, 15);
         }
-        
+
         $E = bcsub($E, $cont, 15);
 
         $value = bcmul($value, $cont, 15);
@@ -85,6 +122,12 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
                         $price = Mage::helper('core')->currency($parcel, true, false);
                         $replaceText = str_replace('{parcelas}', $i, $this->getText());
                         $finalText = str_replace('{preco}', $price, $replaceText);
+
+                        if ($i >= $this->getInterestFrom()) {
+                            $finalText .= $this->getTextWithInterest();
+                        } else {
+                            $finalText .= $this->getTextWithoutInterest();
+                        }
                     }
                 }
 
@@ -97,4 +140,14 @@ class FranciscoPrado_PrecoParcelado_Helper_Data extends Mage_Core_Helper_Abstrac
         return null;
     }
 
+    public function getSinglePrice($value)
+    {
+        if ($this->isModuleEnabled() && $this->showPriceInParcels()) {
+            $value = Mage::helper('core')->currency(($value * ((100 - (int)$this->getSinglePriceDiscount())/100)), true, false);
+
+            return sprintf('<span class="precoparcelado-single-price" data-discount="%s">%s</span>', (int)$this->getSinglePriceDiscount(), $value);
+        }
+
+        return null;
+    }
 }
